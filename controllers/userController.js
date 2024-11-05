@@ -56,4 +56,35 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { registerUser};
+const loginUser = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+  
+    // Check if user exists
+    const user = await User.findOne({ email });
+  
+    if (user) {
+      // Compare hashed password
+      const isMatch = await bcrypt.compare(password, user.password);
+  
+      if (isMatch) {
+        res.status(200).json({
+          message: "Login successful",
+          user: {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            age: user.age,
+            gender: user.gender,
+            bloodGroup: user.bloodGroup,
+            phoneNumber: user.phoneNumber
+          }
+        });
+      } else {
+        res.status(400).json({ message: "Invalid password" });
+      }
+    } else {
+      res.status(404).json({ message: "User does not exist" });
+    }
+  });
+
+module.exports = { registerUser,loginUser};
